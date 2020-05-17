@@ -1,0 +1,41 @@
+name: tabular
+base: core18
+version: '1.0'
+summary: Parse ASCII tabular data, such as the output from docker ps or netstat -tanp.
+description: |
+  $ netstat -tanp
+  Active Internet connections (servers and established)
+  Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+  tcp        0      0 127.0.0.1:4000          0.0.0.0:*               LISTEN      -                   
+  tcp        0      0 127.0.0.1:17600         0.0.0.0:*               LISTEN      9244/dropbox        
+  tcp        0      0 127.0.0.1:17603         0.0.0.0:*               LISTEN      9244/dropbox        
+  tcp        0      0 0.0.0.0:902             0.0.0.0:*               LISTEN      - 
+  # note that netstat adds an extra line to the output before the table
+  # so we skip it.
+  $ netstat -tanp | python3 tabular.py --skip=1
+  Proto=tcp
+  Recv-Q=0
+  Send-Q=0
+  Local Address=127.0.0.1:4000
+  Foreign Address=0.0.0.0:*
+  State=LISTEN
+  PID/Program name=-
+  Proto=tcp
+  Recv-Q=0
+  Send-Q=0
+  Local Address=127.0.0.1:17600
+  Foreign Address=0.0.0.0:*
+  State=LISTEN
+  PID/Program name=9244/dropbox
+
+grade: stable
+confinement: strict
+
+parts:
+  tabular:
+    plugin: dump
+    source: https://github.com/stuartlangridge/tabular.git
+
+apps:
+  tabular:
+    command: /usr/bin/python3 $SNAP/tabular.py
