@@ -4,6 +4,8 @@
 
 Parse ASCII tabular data, such as the output from `docker ps` or `netstat -tanp`.
 
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/tabular)
+
 ```bash
 $ docker ps
 CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS              PORTS                                                                       NAMES
