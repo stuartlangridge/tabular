@@ -92,6 +92,22 @@ f41dca732dbe        metabase/metabase:latest   "/app/run_metabase.sh"   3 days a
         ]
         self.check_equality(inp, exp)
 
+    @unittest.skip
+    def test_ps(self):
+        """Note: this test is known to fail. The problem is that there's nothing
+        obvious showing where the dividing line between TTY and TIME is. So they
+        get lumped into one column. This needs fixing."""
+        inp = """
+  PID TTY          TIME CMD
+ 4960 pts/9    00:00:01 bash
+ 4970 pts/9    00:00:00 ps
+"""
+        exp = [
+            {"PID": "4960", "TTY": "pts/9", "TIME": "00:00:01", "CMD": "bash"},
+            {"PID": "4967", "TTY": "pts/9", "TIME": "00:00:00", "CMD": "ps"}
+        ]
+        self.check_equality(inp, exp)
+
     def test_netstat(self):
         inp = """
 Active Internet connections (servers and established)
