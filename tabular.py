@@ -40,10 +40,15 @@ def parse_lines(lines):
         for lb in lb_checked:
             if lb == 0:
                 lb_checked[lb].append(line[lb] != " ")
+            elif lb > len(line):
+                lb_checked[lb].append(False)
             else:
                 lb_checked[lb].append(line[lb] != " " and line[lb - 1] == " ")
         for rb in rb_checked:
-            rb_checked[rb].append(line[rb - 1] != " " and line[rb] == " ")
+            if rb > len(line):
+                rb_checked[rb].append(False)
+            else:
+                rb_checked[rb].append(line[rb - 1] != " " and line[rb] == " ")
     valid_lb = [x[0] for x in lb_checked.items() if all(x[1])]
     valid_rb = [x[0] for x in rb_checked.items() if all(x[1])]
     position = 0

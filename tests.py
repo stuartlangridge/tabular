@@ -60,6 +60,42 @@ One     Col Two Is Right Aligned    Three
         ]
         self.check_equality(inp, exp)
 
+    def test_df(self):
+        inp = """
+Filesystem     1K-blocks      Used Available Use% Mounted on
+udev             8114516         0   8114516   0% /dev
+tmpfs            1629484      3068   1626416   1% /run
+/dev/sda2      230135988 169725636  48697080  78% /
+"""
+        exp = [
+            {
+                "Filesystem": "udev",
+                "1K-blocks": "8114516",
+                "Used": "0",
+                "Available": "8114516",
+                "Use%": "0%",
+                "Mounted on": "/dev"
+            },
+            {
+                "Filesystem": "tmpfs",
+                "1K-blocks": "1629484",
+                "Used": "3068",
+                "Available": "1626416",
+                "Use%": "1%",
+                "Mounted on": "/run"
+            },
+            {
+                "Filesystem": "/dev/sda2",
+                "1K-blocks": "230135988",
+                "Used": "169725636",
+                "Available": "48697080",
+                "Use%": "78%",
+                "Mounted on": "/"
+            }
+
+        ]
+        self.check_equality(inp, exp)
+
     def test_docker(self):
         inp = """
 CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS              PORTS                                                                       NAMES
