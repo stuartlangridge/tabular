@@ -8,10 +8,9 @@ class TestParser(unittest.TestCase):
         self.maxDiff = None
         lines = inp.split("\n")
         # first line is blank because of formatting
-        res = tabular.parse_lines(lines[1+extraskip:])
+        res = tabular.parse_lines(lines[1 + extraskip:])
         res_as_dict = [dict(x) for x in res]
         return self.assertEqual(res_as_dict, exp)
-
 
     def test_basic(self):
         inp = """

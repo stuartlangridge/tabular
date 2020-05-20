@@ -20,8 +20,10 @@ def parse(filename, skip=0):
 
 
 def parse_lines(lines):
-    left_boundaries = [0] + [x.span()[0] + 1 for x in re.finditer(r" [^ ]", lines[0])]
-    right_boundaries = [x.span()[0] + 1 for x in re.finditer(r"[^ ] ", lines[0])]
+    left_boundaries = [0] + [
+        x.span()[0] + 1 for x in re.finditer(r" [^ ]", lines[0])]
+    right_boundaries = [
+        x.span()[0] + 1 for x in re.finditer(r"[^ ] ", lines[0])]
     # Columns might be left-justified, or right-justified
     # Column headers may contain a space, or not
     # So, check each row, and then look at all the left boundaries: if there is
@@ -41,7 +43,7 @@ def parse_lines(lines):
             else:
                 lb_checked[lb].append(line[lb] != " " and line[lb - 1] == " ")
         for rb in rb_checked:
-            rb_checked[rb].append(line[rb-1] != " " and line[rb] == " ")
+            rb_checked[rb].append(line[rb - 1] != " " and line[rb] == " ")
     valid_lb = [x[0] for x in lb_checked.items() if all(x[1])]
     valid_rb = [x[0] for x in rb_checked.items() if all(x[1])]
     position = 0
@@ -66,7 +68,8 @@ def parse_lines(lines):
     for cs, ce, cj in columns:
         if cj == "r":
             try:
-                start_characters = [line[cs] != " " for line in lines if line.strip()]
+                start_characters = [
+                    line[cs] != " " for line in lines if line.strip()]
             except IndexError:
                 start_characters = [False]
             if all(start_characters):
@@ -74,7 +77,9 @@ def parse_lines(lines):
                 # so it's probably two columns. Find a place to split it
                 found = False
                 for ncs in range(cs, ce):
-                    if all([line[ncs] == " " for line in lines if line.strip()]):
+                    is_spaces = [line[ncs] == " "
+                                 for line in lines if line.strip()]
+                    if all(is_spaces):
                         ncolumns.append((cs, ncs, "l"))
                         ncolumns.append((ncs, ce, "r"))
                         found = True
