@@ -140,6 +140,15 @@ if __name__ == "__main__":
                         help='lines to skip before table header')
     parser.add_argument('--format', default="ini", choices=["ini", "json"],
                         help='output data format')
+    parser.add_argument('--debug', action="store_true",
+                        help='show unfriendly tracebacks, not friendly errors')
     args = parser.parse_args()
-    data = parse(args.filename, args.skip)
-    output(data, args.format)
+    try:
+        data = parse(args.filename, args.skip)
+        output(data, args.format)
+    except IndexError:
+        if args.debug:
+            raise
+        else:
+            print("That data does not seem to be tabular, so I am giving up.",
+                  file=sys.stderr)
