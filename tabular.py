@@ -14,7 +14,8 @@ def parse(filename, skip=0):
         fp = open(filename, encoding="utf-8")
     lines = fp.readlines()
     fp.close()
-    if skip: lines = lines[skip:]
+    if skip:
+        lines = lines[skip:]
     return parse_lines(lines)
 
 
@@ -32,7 +33,8 @@ def parse_lines(lines):
     lb_checked = dict([(lb, []) for lb in left_boundaries])
     rb_checked = dict([(rb, []) for rb in right_boundaries])
     for line in lines[1:]:  # skip the headers
-        if not line: continue
+        if not line:
+            continue
         for lb in lb_checked:
             if lb == 0:
                 lb_checked[lb].append(line[lb] != " ")
@@ -99,6 +101,7 @@ def parse_lines(lines):
         if valid_linedata:
             data.append(OrderedDict(valid_linedata))
     return data
+
 
 def output_ini(data):
     for row in data:
