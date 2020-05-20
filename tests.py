@@ -176,6 +176,41 @@ f41dca732dbe        metabase/metabase:latest   "/app/run_metabase.sh"   3 days a
         ]
         self.check_equality(inp, exp)
 
+    def test_lxd_lxc_list(self):
+        inp = """
++-----------------+---------+----------------------+------+-----------+-----------+
+|      NAME       |  STATE  |         IPV4         | IPV6 |   TYPE    | SNAPSHOTS |
++-----------------+---------+----------------------+------+-----------+-----------+
+| lqvb            | STOPPED |                      |      | CONTAINER | 0         |
++-----------------+---------+----------------------+------+-----------+-----------+
+| lqxf            | RUNNING | 10.134.93.201 (eth0) |      | CONTAINER | 0         |
++-----------------+---------+----------------------+------+-----------+-----------+
+| snapcraft-spign | STOPPED |                      |      | CONTAINER | 0         |
++-----------------+---------+----------------------+------+-----------+-----------+
+"""
+        exp = [
+            {
+                "NAME": "lqvb",
+                "STATE": "STOPPED",
+                "TYPE": "CONTAINER",
+                "SNAPSHOTS": "0"
+            },
+            {
+                "NAME": "lqxf",
+                "STATE": "RUNNING",
+                "IPV4": "10.134.93.201 (eth0)",
+                "TYPE": "CONTAINER",
+                "SNAPSHOTS": "0"
+            },
+            {
+                "NAME": "snapcraft-spign",
+                "STATE": "STOPPED",
+                "TYPE": "CONTAINER",
+                "SNAPSHOTS": "0"
+            }
+        ]
+        self.check_equality(inp, exp)
+
     def test_netstat(self):
         inp = """
 Active Internet connections (servers and established)

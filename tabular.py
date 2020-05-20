@@ -20,10 +20,24 @@ def parse(filename, skip=0):
 
 
 def parse_lines(lines):
+    # handle ascii art tables. We remove all lines that are
+    # composed of nothing but + and -
+    lines = [x for x in lines if x.replace("-", "").replace("+", "").strip()]
+
+    # if the first line now contains more than one | then we
+    # assume that the divider is | not " "
+    divider = " "
+    lb_re = r" [^ ]"
+    rb_re = r"[^ ] "
+    if lines[0].count("|") > 1:
+        divider = "|"
+        lb_re = r"\|[^|]"
+        rb_re = r"[^|]\|"
+
     left_boundaries = [0] + [
-        x.span()[0] + 1 for x in re.finditer(r" [^ ]", lines[0])]
+        x.span()[0] + 1 for x in re.finditer(lb_re, lines[0])]
     right_boundaries = [
-        x.span()[0] + 1 for x in re.finditer(r"[^ ] ", lines[0])]
+        x.span()[0] + 1 for x in re.finditer(rb_re, lines[0])]
     # Columns might be left-justified, or right-justified
     # Column headers may contain a space, or not
     # So, check each row, and then look at all the left boundaries: if there is
@@ -39,16 +53,18 @@ def parse_lines(lines):
             continue
         for lb in lb_checked:
             if lb == 0:
-                lb_checked[lb].append(line[lb] != " ")
+                lb_checked[lb].append(line[lb] != divider)
             elif lb > len(line):
                 lb_checked[lb].append(False)
             else:
-                lb_checked[lb].append(line[lb] != " " and line[lb - 1] == " ")
+                lb_checked[lb].append(
+                    line[lb] != divider and line[lb - 1] == divider)
         for rb in rb_checked:
             if rb > len(line):
                 rb_checked[rb].append(False)
             else:
-                rb_checked[rb].append(line[rb - 1] != " " and line[rb] == " ")
+                rb_checked[rb].append(
+                    line[rb - 1] != divider and line[rb] == divider)
     valid_lb = [x[0] for x in lb_checked.items() if all(x[1])]
     valid_rb = [x[0] for x in rb_checked.items() if all(x[1])]
     position = 0
@@ -74,7 +90,7 @@ def parse_lines(lines):
         if cj == "r":
             try:
                 start_characters = [
-                    line[cs] != " " for line in lines if line.strip()]
+                    line[cs] != divider for line in lines if line.strip()]
             except IndexError:
                 start_characters = [False]
             if all(start_characters):
@@ -82,7 +98,7 @@ def parse_lines(lines):
                 # so it's probably two columns. Find a place to split it
                 found = False
                 for ncs in range(cs, ce):
-                    is_spaces = [line[ncs] == " "
+                    is_spaces = [line[ncs] == divider
                                  for line in lines if line.strip()]
                     if all(is_spaces):
                         ncolumns.append((cs, ncs, "l"))
@@ -109,7 +125,9 @@ def parse_lines(lines):
             linedata.append(column)
         valid_linedata = [x for x in zip(headers, linedata) if x[0] and x[1]]
         if valid_linedata:
-            data.append(OrderedDict(valid_linedata))
+            d = OrderedDict(valid_linedata)
+            if "|" in d: del d["|"]
+            data.append(d)
     return data
 
 
