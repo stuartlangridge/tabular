@@ -126,7 +126,8 @@ def parse_lines(lines):
         valid_linedata = [x for x in zip(headers, linedata) if x[0] and x[1]]
         if valid_linedata:
             d = OrderedDict(valid_linedata)
-            if "|" in d: del d["|"]
+            if "|" in d:
+                del d["|"]
             data.append(d)
     return data
 
