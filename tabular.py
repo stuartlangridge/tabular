@@ -19,7 +19,7 @@ def parse(filename, skip=0):
 
 
 def parse_lines(lines):
-    left_boundaries = [x.span()[0] + 1 for x in re.finditer(r" [^ ]", lines[0])]
+    left_boundaries = [0] + [x.span()[0] + 1 for x in re.finditer(r" [^ ]", lines[0])]
     right_boundaries = [x.span()[0] + 1 for x in re.finditer(r"[^ ] ", lines[0])]
     # Columns might be left-justified, or right-justified
     # Column headers may contain a space, or not
@@ -34,9 +34,12 @@ def parse_lines(lines):
     for line in lines[1:]:  # skip the headers
         if not line: continue
         for lb in lb_checked:
-            lb_checked[lb].append(line[lb] != " " and line[lb - 1] == " ")
+            if lb == 0:
+                lb_checked[lb].append(line[lb] != " ")
+            else:
+                lb_checked[lb].append(line[lb] != " " and line[lb - 1] == " ")
         for rb in rb_checked:
-            rb_checked[rb].append(line[rb] == " " and line[rb + 1] == " ")
+            rb_checked[rb].append(line[rb-1] != " " and line[rb] == " ")
     valid_lb = [x[0] for x in lb_checked.items() if all(x[1])]
     valid_rb = [x[0] for x in rb_checked.items() if all(x[1])]
     position = 0
@@ -55,6 +58,34 @@ def parse_lines(lines):
         position = nxt[0]
     columns.append((columns[-1][1], None, "l"))
 
+    # split right columns where there's something on the left in all rows
+    # because that's actually a left column followed by a right column
+    ncolumns = []
+    for cs, ce, cj in columns:
+        if cj == "r":
+            try:
+                start_characters = [line[cs] != " " for line in lines if line.strip()]
+            except IndexError:
+                start_characters = [False]
+            if all(start_characters):
+                # this right column has characters at the left in every row,
+                # so it's probably two columns. Find a place to split it
+                found = False
+                for ncs in range(cs, ce):
+                    if all([line[ncs] == " " for line in lines if line.strip()]):
+                        ncolumns.append((cs, ncs, "l"))
+                        ncolumns.append((ncs, ce, "r"))
+                        found = True
+                        break
+                if not found:
+                    # no place to split
+                    ncolumns.append((cs, ce, cj))
+            else:
+                ncolumns.append((cs, ce, cj))
+        else:
+            ncolumns.append((cs, ce, cj))
+    columns = ncolumns
+
     headers = []
     for start, end, justification in columns:
         headers.append(lines[0][start:end].strip())
@@ -68,7 +99,6 @@ def parse_lines(lines):
         if valid_linedata:
             data.append(OrderedDict(valid_linedata))
     return data
-
 
 def output_ini(data):
     for row in data:
