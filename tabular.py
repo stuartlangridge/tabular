@@ -34,6 +34,13 @@ def parse_lines(lines):
         lb_re = r"\|[^|]"
         rb_re = r"[^|]\|"
 
+    # ss tries to be clever and have rows that look like
+    #           Address:Port
+    #    blah.blah.blah 12345
+    # which is basically a right column and a left one with a weird header divider
+    # so replace "x:x" with "x x" in headers, where x is a valid character
+    lines[0] = re.sub(r"(\S):(\S)", r"\1 \2", lines[0])
+
     left_boundaries = [0] + [
         x.span()[0] + 1 for x in re.finditer(lb_re, lines[0])]
     right_boundaries = [
