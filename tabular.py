@@ -118,12 +118,32 @@ def parse_lines(lines):
     for start, end, justification in columns:
         headers.append(lines[0][start:end].strip())
     data = []
+
+    # handle duplicate header keys
+    newkeys = []
+    bumpable = set()
+    for i in range(len(headers)):
+        this = headers[i]
+        incr = 1
+        while True:
+            if [this, incr] in newkeys:
+                incr += 1
+                if this: bumpable.add(this)
+            else:
+                newkeys.append([this, incr])
+                break
+    newheaders = [h if i == 1 else "{}_{}".format(h, i) for (h, i) in newkeys]
+    for bump in list(bumpable):
+        idx = newheaders.index(bump)
+        newheaders[idx] = "{}_1".format(newheaders[idx])
+
     for line in lines[1:]:
         linedata = []
         for start, end, justification in columns:
             column = line[start:end].strip()
             linedata.append(column)
-        valid_linedata = [x for x in zip(headers, linedata) if x[0] and x[1]]
+
+        valid_linedata = [x for x in zip(newheaders, linedata) if x[0] and x[1] and not x[0].startswith(divider)]
         if valid_linedata:
             d = OrderedDict(valid_linedata)
             if "|" in d:

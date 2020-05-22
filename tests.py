@@ -24,6 +24,18 @@ One     Two    Three
         ]
         self.check_equality(inp, exp)
 
+    def test_dupes(self):
+        inp = """
+One     Two    One
+1.1     1.2    1.3
+2.1     2.2    2.3
+"""
+        exp = [
+            {"One_1": "1.1", "Two": "1.2", "One_2": "1.3"},
+            {"One_1": "2.1", "Two": "2.2", "One_2": "2.3"}
+        ]
+        self.check_equality(inp, exp)
+
     def test_basic_spaces(self):
         inp = """
 One     Column Two    Three
