@@ -39,3 +39,5 @@ parts:
 apps:
   tabular:
     command: /usr/bin/python3 $SNAP/tabular.py
+    environment:
+      PYTHONIOENCODING: "utf-8"
