@@ -37,7 +37,7 @@ def parse_lines(lines):
     # ss tries to be clever and have rows that look like
     #           Address:Port
     #    blah.blah.blah 12345
-    # which is basically a right column and a left one with a weird header divider
+    # which is basically a right col and a left col with a weird header divider
     # so replace "x:x" with "x x" in headers, where x is a valid character
     lines[0] = re.sub(r"(\S):(\S)", r"\1 \2", lines[0])
 
@@ -135,7 +135,8 @@ def parse_lines(lines):
         while True:
             if [this, incr] in newkeys:
                 incr += 1
-                if this: bumpable.add(this)
+                if this:
+                    bumpable.add(this)
             else:
                 newkeys.append([this, incr])
                 break
@@ -150,7 +151,8 @@ def parse_lines(lines):
             column = line[start:end].strip()
             linedata.append(column)
 
-        valid_linedata = [x for x in zip(newheaders, linedata) if x[0] and x[1] and not x[0].startswith(divider)]
+        valid_linedata = [x for x in zip(newheaders, linedata)
+                          if x[0] and x[1] and not x[0].startswith(divider)]
         if valid_linedata:
             d = OrderedDict(valid_linedata)
             if "|" in d:
