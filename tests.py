@@ -8,7 +8,8 @@ class TestParser(unittest.TestCase):
         self.maxDiff = None
         lines = inp.split("\n")
         # first line is blank because of formatting
-        res = tabular.parse_lines(lines[1 + extraskip:])
+        #res = tabular.parse_lines(lines[1 + extraskip:])
+        res = tabular.parse(filename=None, data_from_tests=lines[1 + extraskip:])
         res_as_dict = [dict(x) for x in res]
         return self.assertEqual(res_as_dict, exp)
 
@@ -223,7 +224,7 @@ f41dca732dbe        metabase/metabase:latest   "/app/run_metabase.sh"   3 days a
         ]
         self.check_equality(inp, exp)
 
-    def test_netstat(self):
+    def test_netstat_explicit_skip(self):
         inp = """
 Active Internet connections (servers and established)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
@@ -271,6 +272,56 @@ tcp        0      0 0.0.0.0:902             0.0.0.0:*               LISTEN      
             }
         ]
         self.check_equality(inp, exp, extraskip=1)
+
+    def test_netstat_dwim_skip(self):
+        "Here we don't specify to skip the first line and expect to DWIM it"
+        inp = """
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 127.0.0.1:4000          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:17600         0.0.0.0:*               LISTEN      9244/dropbox        
+tcp        0      0 127.0.0.1:17603         0.0.0.0:*               LISTEN      9244/dropbox        
+tcp        0      0 0.0.0.0:902             0.0.0.0:*               LISTEN      -                   
+"""
+        exp = [
+            {
+                "Proto": "tcp",
+                "Recv-Q": "0",
+                "Send-Q": "0",
+                "Local Address": "127.0.0.1:4000",
+                "Foreign Address": "0.0.0.0:*",
+                "State": "LISTEN",
+                "PID/Program name": "-"
+            },
+            {
+                "Proto": "tcp",
+                "Recv-Q": "0",
+                "Send-Q": "0",
+                "Local Address": "127.0.0.1:17600",
+                "Foreign Address": "0.0.0.0:*",
+                "State": "LISTEN",
+                "PID/Program name": "9244/dropbox"
+            },
+            {
+                "Proto": "tcp",
+                "Recv-Q": "0",
+                "Send-Q": "0",
+                "Local Address": "127.0.0.1:17603",
+                "Foreign Address": "0.0.0.0:*",
+                "State": "LISTEN",
+                "PID/Program name": "9244/dropbox"
+            },
+            {
+                "Proto": "tcp",
+                "Recv-Q": "0",
+                "Send-Q": "0",
+                "Local Address": "0.0.0.0:902",
+                "Foreign Address": "0.0.0.0:*",
+                "State": "LISTEN",
+                "PID/Program name": "-"
+            }
+        ]
+        self.check_equality(inp, exp)
 
 
 if __name__ == "__main__":

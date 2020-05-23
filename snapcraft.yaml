@@ -1,6 +1,6 @@
 name: tabular
 base: core18
-version: '1.14'
+version: '1.15'
 summary: Parse ASCII tabular data, such as the output from docker ps or netstat -tanp.
 description: |
   $ netstat -tanp

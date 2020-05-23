@@ -7,15 +7,28 @@ import json
 from collections import OrderedDict
 
 
-def parse(filename, skip=0):
-    if filename == "-":
-        fp = sys.stdin
+def parse(filename, skip=0, data_from_tests=None):
+    if data_from_tests:
+        lines = data_from_tests
     else:
-        fp = open(filename, encoding="utf-8")
-    lines = fp.readlines()
-    fp.close()
+        if filename == "-":
+            fp = sys.stdin
+        else:
+            fp = open(filename, encoding="utf-8")
+        lines = fp.readlines()
+        fp.close()
     if skip:
         lines = lines[skip:]
+    else:
+        # consider dwimming skipping lines
+        # the heuristic is: assume that a line with only single spaces is text
+        # and a line with multiple spaces is a column
+        # we only dwim one line skip; we could keep looking for single-space
+        # lines until we find a proper header line, but since the only
+        # example known so far is netstat, we'll just check the first
+        if len(re.findall(r"\s\s", lines[0])) == 0 and \
+           len(re.findall(r"\s\s", lines[1])) > 0:
+            lines = lines[1:]
     return parse_lines(lines)
 
 
